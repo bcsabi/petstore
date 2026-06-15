@@ -22,7 +22,8 @@ petstore                                  # root POM
 ├── petstore-common                       # service-ek közti újrahasznosítható modulok
 │   ├── petstore-common-core              #   core - exception hierarchia, ProblemType
 │   ├── petstore-common-jpa               #   közös entitások (audit), Specification helperek
-│   └── petstore-common-web               #   közös REST exception handler, autoconfig
+│   ├── petstore-common-web               #   közös REST kódok - exception handler, logging filter, autoconfig
+│   └── petstore-common-grpc              #   közös gRPC kódok - exception handler, logging interceptor, autoconfig
 ├── petstore-api                          # API modulok
 │   └── petstore-order-api                # Rendeléskezeléssel kapcsolatos API-k
 │       ├── petstore-order-api-rest       #   Rendelkéskezeléssel kapcsolatos REST API - OpenAPI spec + generált REST interfész és DTO-k

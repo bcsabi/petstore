@@ -10,9 +10,9 @@
         <version>0.1.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>petstore-common-web</artifactId>
+    <artifactId>petstore-common-grpc</artifactId>
 
-    <name>Pet Store Common Web</name>
+    <name>Pet Store Common gRPC</name>
 
     <dependencies>
         <!-- Projekt függőségek -->
@@ -23,8 +23,8 @@
 
         <!-- Spring függőségek -->
         <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-web</artifactId>
+            <groupId>org.springframework.grpc</groupId>
+            <artifactId>spring-grpc-core</artifactId>
         </dependency>
 
         <dependency>
@@ -37,11 +37,10 @@
             <artifactId>spring-boot-starter-logging</artifactId>
         </dependency>
 
-        <!-- Provided függőségek -->
+        <!-- gRPC függőségek -->
         <dependency>
-            <groupId>jakarta.servlet</groupId>
-            <artifactId>jakarta.servlet-api</artifactId>
-            <scope>provided</scope>
+            <groupId>io.grpc</groupId>
+            <artifactId>grpc-stub</artifactId>
         </dependency>
 
         <!-- Teszt függőségek -->

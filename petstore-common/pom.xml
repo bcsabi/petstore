@@ -19,6 +19,7 @@
         <module>petstore-common-core</module>
         <module>petstore-common-jpa</module>
         <module>petstore-common-web</module>
+        <module>petstore-common-grpc</module>
     </modules>
 
     <dependencyManagement>

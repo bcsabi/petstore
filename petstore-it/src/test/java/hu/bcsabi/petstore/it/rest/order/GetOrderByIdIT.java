@@ -2,7 +2,10 @@ package hu.bcsabi.petstore.it.rest.order;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.util.UUID;
+
 import org.junit.jupiter.api.Test;
+import org.springframework.http.MediaType;
 
 import hu.bcsabi.petstore.order.dto.OrderCreateRequest;
 import hu.bcsabi.petstore.order.dto.OrderResponse;
@@ -28,6 +31,18 @@ class GetOrderByIdIT extends AbstractOrderIT {
         assertThat(orderResponse.getId()).isNotNull();
         assertThat(orderResponse.getStatus()).isEqualTo(OrderStatusDto.PLACED);
         assertThat(orderResponse.getShipDate()).isNull();
+    }
+
+    @Test
+    void shouldReturn404WhenOrderDoesNotExist() {
+        // when / then
+        orderRestTestClient.get()
+            .uri("/{orderId}", UUID.randomUUID())
+            .exchange()
+            .expectStatus().isNotFound()
+            .expectHeader().contentTypeCompatibleWith(MediaType.APPLICATION_PROBLEM_JSON)
+            .expectBody()
+            .jsonPath("type").isEqualTo(PROBLEM_BASE + "/order-not-found");
     }
 
 }

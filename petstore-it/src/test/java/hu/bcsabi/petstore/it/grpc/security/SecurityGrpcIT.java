@@ -21,7 +21,7 @@ import io.grpc.stub.MetadataUtils;
  * @author csaba.balogh
  * @since 0.1.0
  */
-class GrpcSecurityIT extends AbstractGrpcIT {
+class SecurityGrpcIT extends AbstractGrpcIT {
 
     private static final GetOrderRequest ANY_REQUEST = GetOrderRequest.newBuilder()
         .setOrderId(UUID.randomUUID().toString())
