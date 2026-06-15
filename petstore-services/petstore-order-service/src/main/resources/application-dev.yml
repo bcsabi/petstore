@@ -1,0 +1,31 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/petstore
+    username: root
+    password: admin
+  jpa:
+    properties:
+      hibernate:
+        generate_statistics: true
+
+springdoc:
+  api-docs:
+    enabled: true
+  swagger-ui:
+    enabled: true
+    urls:
+      - url: /openapi/order-api.yaml
+        name: Petstore Order Service
+
+petstore:
+  problem:
+    include-detail: always
+  security:
+    api-key: petstore-local-api-key
+
+logging:
+  level:
+    hu.bcsabi.petstore: DEBUG
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+

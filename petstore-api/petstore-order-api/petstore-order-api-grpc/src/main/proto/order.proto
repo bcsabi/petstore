@@ -1,0 +1,90 @@
+syntax = "proto3";
+
+package petstore.order.v1;
+
+option java_multiple_files = true;
+option java_package = "hu.bcsabi.petstore.order.grpc";
+option java_outer_classname = "OrderProto";
+
+// Pet Store rendeléskezelő gRPC API.
+//
+// A REST API-val azonos üzleti logikát teszi elérhetővé gRPC-n keresztül.
+// A végpontok az x-api-key metadata alapú API key védelmet igénylik (a REST-tel megegyező kulcs).
+service OrderService {
+
+  // Rendelés lekérdezése egyedi azonosító alapján.
+  rpc GetOrder(GetOrderRequest) returns (GetOrderResponse);
+
+  // Rendelések listázása, opcionálisan szállítási dátum tartományra szűrve.
+  rpc ListOrders(ListOrdersRequest) returns (ListOrdersResponse);
+
+}
+
+// A rendelés életciklus-státusza.
+enum OrderStatus {
+
+  // Nem definiált státusz (proto3 alapértelmezett nulla érték).
+  ORDER_STATUS_UNSPECIFIED = 0;
+
+  // A rendelés leadva.
+  ORDER_STATUS_PLACED = 1;
+
+  // A rendelés jóváhagyva.
+  ORDER_STATUS_APPROVED = 2;
+
+  // A rendelés kiszállítva.
+  ORDER_STATUS_DELIVERED = 3;
+
+}
+
+// Egy rendelés reprezentációja.
+message Order {
+
+  // A rendelés egyedi azonosítója (UUID).
+  string id = 1;
+
+  // A megrendelt kisállat egyedi azonosítója (UUID).
+  string pet_id = 2;
+
+  // Tervezett szállítási dátum (ISO-8601, yyyy-MM-dd). Hiányozhat, ha még nincs beállítva.
+  optional string ship_date = 3;
+
+  // A rendelés státusza.
+  OrderStatus status = 4;
+
+}
+
+// GetOrder kérés.
+message GetOrderRequest {
+
+  // A lekérdezendő rendelés egyedi azonosítója (UUID).
+  string order_id = 1;
+
+}
+
+// GetOrder válasz.
+message GetOrderResponse {
+
+  // A megtalált rendelés.
+  Order order = 1;
+
+}
+
+// ListOrders kérés. A nem beállított szűrőmezők azt jelentik, hogy az adott határra nincs szűrés.
+message ListOrdersRequest {
+
+  // Szállítási dátum kezdete, inclusive (ISO-8601, yyyy-MM-dd). Opcionális.
+  optional string ship_date_from = 1;
+
+  // Szállítási dátum vége, inclusive (ISO-8601, yyyy-MM-dd). Opcionális.
+  optional string ship_date_to = 2;
+
+}
+
+// ListOrders válasz.
+message ListOrdersResponse {
+
+  // A szűrésnek megfelelő rendelések.
+  repeated Order orders = 1;
+
+}

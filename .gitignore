@@ -1,0 +1,8 @@
+.claude/
+.vscode
+.idea
+*.iml
+target/
+bin/
+log/
+*.log
