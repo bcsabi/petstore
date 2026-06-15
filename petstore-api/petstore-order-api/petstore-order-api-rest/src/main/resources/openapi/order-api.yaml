@@ -1,0 +1,331 @@
+openapi: "3.1.0"
+info:
+  title: Pet Store Order API
+  description: Pet Store rendeléskezelő API – rendelések létrehozása, lekérdezése, módosítása és törlése.
+  version: "1.0.0"
+
+security:
+  - ApiKeyAuth: [ ]
+
+tags:
+  - name: order
+    description: Rendeléskezelő műveletek
+
+paths:
+  /api/store/order:
+    post:
+      tags:
+        - order
+      summary: Új rendelés létrehozása
+      description: >-
+        Létrehoz egy új rendelést a megadott kisállatra. A rendelés csak akkor jön létre,
+        ha a kisállat létezik és elérhető; egyébként hibát ad vissza.
+      operationId: createOrder
+      requestBody:
+        required: true
+        description: A létrehozandó rendelés adatai.
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OrderCreateRequest'
+      responses:
+        '200':
+          description: Rendelés sikeresen létrehozva
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/UnprocessableContent'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+    get:
+      tags:
+        - order
+      summary: Rendelések listázása
+      description: >-
+        Visszaadja a rendeléseket, opcionálisan szállítási dátum tartományra (from/to,
+        mindkettő inclusive) szűrve.
+      operationId: getOrders
+      parameters:
+        - name: from
+          in: query
+          description: Szállítási dátum kezdete (inclusive)
+          required: false
+          schema:
+            type: string
+            format: date
+        - name: to
+          in: query
+          description: Szállítási dátum vége (inclusive)
+          required: false
+          schema:
+            type: string
+            format: date
+      responses:
+        '200':
+          description: Rendelések listája
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderListResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /api/store/order/{orderId}:
+    get:
+      tags:
+        - order
+      summary: Rendelés lekérdezése ID alapján
+      description: Visszaadja a megadott azonosítójú rendelést.
+      operationId: getOrderById
+      parameters:
+        - name: orderId
+          in: path
+          description: A rendelés egyedi azonosítója
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Rendelés megtalálva
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+    delete:
+      tags:
+        - order
+      summary: Rendelés törlése ID alapján
+      description: Törli a megadott azonosítójú rendelést.
+      operationId: deleteOrder
+      parameters:
+        - name: orderId
+          in: path
+          description: A rendelés egyedi azonosítója
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: Rendelés sikeresen törölve
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/UnprocessableContent'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+    patch:
+      tags:
+        - order
+      summary: Rendelés részleges módosítása (RFC 6902 JSON Patch)
+      description: >-
+        Részlegesen módosítja a megadott rendelést RFC 6902 JSON Patch műveletekkel
+        (add, remove, replace).
+      operationId: patchOrder
+      parameters:
+        - name: orderId
+          in: path
+          description: A rendelés egyedi azonosítója
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        description: A végrehajtandó JSON Patch műveletek (RFC 6902) listája.
+        content:
+          application/json-patch+json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/JsonPatchOperation'
+      responses:
+        '200':
+          description: Rendelés sikeresen módosítva
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrderResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/UnprocessableContent'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: x-api-key
+
+  responses:
+    BadRequest:
+      description: Érvénytelen kérés
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/ProblemDetail'
+    Unauthorized:
+      description: Hiányzó vagy érvénytelen API key
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/ProblemDetail'
+    NotFound:
+      description: A kért erőforrás nem található
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/ProblemDetail'
+    UnprocessableContent:
+      description: Üzleti szabály miatt nem feldolgozható kérés
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/ProblemDetail'
+    InternalServerError:
+      description: Váratlan technikai hiba
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/ProblemDetail'
+
+  schemas:
+    OrderCreateRequest:
+      type: object
+      description: Új rendelés létrehozásához szükséges adatok
+      additionalProperties: false
+      required:
+        - petId
+      properties:
+        petId:
+          type: string
+          format: uuid
+          description: A megrendelt kisállat egyedi azonosítója
+
+    OrderCommonDto:
+      type: object
+      description: Egy rendelés közös adatai
+      required:
+        - id
+        - petId
+        - status
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: A rendelés egyedi azonosítója
+        petId:
+          type: string
+          format: uuid
+          description: A megrendelt kisállat egyedi azonosítója
+        shipDate:
+          type: string
+          format: date
+          description: Tervezett szállítási dátum
+        status:
+          $ref: '#/components/schemas/OrderStatusDto'
+
+    OrderResponse:
+      description: Egy rendelés válasz-reprezentációja
+      allOf:
+        - $ref: '#/components/schemas/OrderCommonDto'
+
+    OrderListElementDto:
+      description: Egy rendelés a listában
+      allOf:
+        - $ref: '#/components/schemas/OrderCommonDto'
+
+    OrderListResponse:
+      type: object
+      description: Rendelések listája
+      required:
+        - elements
+      properties:
+        elements:
+          type: array
+          description: A rendelések
+          items:
+            $ref: '#/components/schemas/OrderListElementDto'
+
+    OrderStatusDto:
+      type: string
+      description: >-
+        A rendelés életciklus-státusza: placed (leadva), approved (jóváhagyva),
+        delivered (kiszállítva).
+      enum:
+        - placed
+        - approved
+        - delivered
+
+    JsonPatchOperation:
+      type: object
+      description: Egyetlen RFC 6902 JSON Patch művelet.
+      required:
+        - op
+        - path
+      properties:
+        op:
+          type: string
+          enum:
+            - add
+            - remove
+            - replace
+          description: Patch művelet típusa (RFC 6902)
+        path:
+          type: string
+          description: JSON Pointer (RFC 6901), pl. /status
+        value:
+          description: Az alkalmazandó érték (add és replace esetén kötelező)
+
+    ProblemDetail:
+      type: object
+      description: RFC 9457 problémaválasz, amelyet minden végpont hiba esetén visszaad.
+      properties:
+        type:
+          type: string
+          format: uri
+          description: A probléma típusát azonosító URI
+        title:
+          type: string
+          description: A probléma rövid leírása
+        status:
+          type: integer
+          description: HTTP státuszkód
+        detail:
+          type: string
+          description: A probléma részletes leírása
+        instance:
+          type: string
+          format: uri
+          description: A konkrét előfordulást azonosító URI (a kérés útvonala)

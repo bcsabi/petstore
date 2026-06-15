@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+            http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-5.0.xsd">
+
+    <changeSet id="2026-06-11-seed-pets" author="csaba.balogh" contextFilter="dev">
+        <insert tableName="pet">
+            <column name="x_id" value="11111111-1111-1111-1111-111111111111"/>
+            <column name="x_created_at" valueComputed="now()"/>
+            <column name="x_last_modified_at" valueComputed="now()"/>
+            <column name="x_version" valueNumeric="0"/>
+            <column name="name" value="Rex"/>
+            <column name="status" value="AVAILABLE"/>
+        </insert>
+        <insert tableName="pet">
+            <column name="x_id" value="22222222-2222-2222-2222-222222222222"/>
+            <column name="x_created_at" valueComputed="now()"/>
+            <column name="x_last_modified_at" valueComputed="now()"/>
+            <column name="x_version" valueNumeric="0"/>
+            <column name="name" value="Mia"/>
+            <column name="status" value="AVAILABLE"/>
+        </insert>
+        <insert tableName="pet">
+            <column name="x_id" value="33333333-3333-3333-3333-333333333333"/>
+            <column name="x_created_at" valueComputed="now()"/>
+            <column name="x_last_modified_at" valueComputed="now()"/>
+            <column name="x_version" valueNumeric="0"/>
+            <column name="name" value="Bud"/>
+            <column name="status" value="AVAILABLE"/>
+        </insert>
+        <insert tableName="pet">
+            <column name="x_id" value="44444444-4444-4444-4444-444444444444"/>
+            <column name="x_created_at" valueComputed="now()"/>
+            <column name="x_last_modified_at" valueComputed="now()"/>
+            <column name="x_version" valueNumeric="0"/>
+            <column name="name" value="Max"/>
+            <column name="status" value="AVAILABLE"/>
+        </insert>
+        <insert tableName="pet">
+            <column name="x_id" value="55555555-5555-5555-5555-555555555555"/>
+            <column name="x_created_at" valueComputed="now()"/>
+            <column name="x_last_modified_at" valueComputed="now()"/>
+            <column name="x_version" valueNumeric="0"/>
+            <column name="name" value="Bella"/>
+            <column name="status" value="SOLD"/>
+        </insert>
+    </changeSet>
+
+    <changeSet id="2026-06-11-seed-orders" author="csaba.balogh" contextFilter="dev">
+        <insert tableName="orders">
+            <column name="x_id" value="55555555-5555-5555-5555-555555555555"/>
+            <column name="x_created_at" valueComputed="now()"/>
+            <column name="x_last_modified_at" valueComputed="now()"/>
+            <column name="x_version" valueNumeric="0"/>
+            <column name="pet_id" value="55555555-5555-5555-5555-555555555555"/>
+            <column name="ship_date" value="2026-06-15"/>
+            <column name="status" value="DELIVERED"/>
+        </insert>
+    </changeSet>
+
+</databaseChangeLog>

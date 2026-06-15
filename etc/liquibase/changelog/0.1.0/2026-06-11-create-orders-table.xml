@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+            http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-5.0.xsd">
+
+    <changeSet id="2026-06-11-create-orders-table" author="csaba.balogh" labels="0.1.0">
+        <createTable tableName="orders">
+            <column name="x_id" type="UUID">
+                <constraints primaryKey="true" primaryKeyName="pk_orders" nullable="false"/>
+            </column>
+            <column name="x_created_at" type="TIMESTAMP WITH TIME ZONE">
+                <constraints nullable="false"/>
+            </column>
+            <column name="x_last_modified_at" type="TIMESTAMP WITH TIME ZONE">
+                <constraints nullable="false"/>
+            </column>
+            <column name="x_version" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="pet_id" type="UUID">
+                <constraints nullable="false"/>
+            </column>
+            <column name="ship_date" type="DATE"/>
+            <column name="status" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addForeignKeyConstraint constraintName="fk_orders_pet_id"
+                                 baseTableName="orders" baseColumnNames="pet_id"
+                                 referencedTableName="pet" referencedColumnNames="x_id"/>
+
+        <addUniqueConstraint tableName="orders" columnNames="pet_id" constraintName="uq_orders_pet_id"/>
+
+        <createIndex tableName="orders" indexName="idx_orders_ship_date">
+            <column name="ship_date"/>
+        </createIndex>
+    </changeSet>
+
+</databaseChangeLog>

@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>hu.bcsabi.petstore</groupId>
+        <artifactId>petstore</artifactId>
+        <version>0.1.0-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>petstore-api</artifactId>
+    <packaging>pom</packaging>
+
+    <name>Pet Store API</name>
+
+    <modules>
+        <module>petstore-order-api</module>
+    </modules>
+
+    <properties>
+        <openapi-generator.version>7.22.0</openapi-generator.version>
+    </properties>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>hu.bcsabi.petstore</groupId>
+                <artifactId>petstore-bom</artifactId>
+                <version>${project.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.openapitools</groupId>
+                    <artifactId>openapi-generator-maven-plugin</artifactId>
+                    <version>${openapi-generator.version}</version>
+                    <configuration>
+                        <generatorName>spring</generatorName>
+                        <generateSupportingFiles>false</generateSupportingFiles>
+                        <schemaMappings>
+                            <schemaMapping>ProblemDetail=org.springframework.http.ProblemDetail</schemaMapping>
+                        </schemaMappings>
+                        <configOptions>
+                            <!-- default kikapcsolt beállítások bekapcsolása -->
+                            <interfaceOnly>true</interfaceOnly>
+                            <useSpringBoot4>true</useSpringBoot4>
+                            <useJackson3>true</useJackson3>
+                            <useJakartaEe>true</useJakartaEe>
+                            <useTags>true</useTags>
+                            <skipDefaultInterface>true</skipDefaultInterface>
+                            <!-- default bekapcsolt beállítások kikapcsolása -->
+                            <openApiNullable>false</openApiNullable>
+                        </configOptions>
+                    </configuration>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+    </build>
+
+</project>

@@ -1,0 +1,22 @@
+spring:
+  jpa:
+    open-in-view: false
+    properties:
+      hibernate:
+        jdbc:
+          time_zone: UTC
+  jackson:
+    time-zone: UTC
+  messages:
+    fallback-to-system-locale: false
+
+springdoc:
+  api-docs:
+    enabled: false
+  swagger-ui:
+    enabled: false
+
+petstore:
+  problem:
+    base-uri: https://api.petstore.hu/errors
+    include-detail: never

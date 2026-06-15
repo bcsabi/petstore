@@ -1,0 +1,67 @@
+name: petstore
+
+services:
+  petstore-postgresql:
+    image: postgres:18-alpine
+    container_name: petstore-postgresql
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      - "5432:5432"
+    volumes:
+      - petstore-postgresql-data:/var/lib/postgresql
+    healthcheck:
+      test: pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB
+      interval: 2s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
+
+  petstore-liquibase:
+    build:
+      dockerfile: liquibase.dockerfile
+    container_name: petstore-liquibase
+    depends_on:
+      petstore-postgresql:
+        condition: service_healthy
+    volumes:
+      - ../liquibase/changelog:/liquibase/changelog:ro
+    command:
+      - --changelog-file=db.changelog-master.xml
+      - --url=${JDBC_URL}
+      - --username=${POSTGRES_USER}
+      - --password=${POSTGRES_PASSWORD}
+      - update
+      - --context-filter=${LIQUIBASE_CONTEXT_FILTER}
+
+  petstore-order-service:
+    profiles: [ "app" ]
+    build:
+      context: ../..
+      dockerfile: etc/docker/order-service.dockerfile
+    container_name: petstore-order-service
+    depends_on:
+      petstore-postgresql:
+        condition: service_healthy
+      petstore-liquibase:
+        condition: service_completed_successfully
+    environment:
+      SPRING_DATASOURCE_URL: ${JDBC_URL}
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
+      SPRING_LIQUIBASE_ENABLED: "false"
+      PETSTORE_SECURITY_API_KEY: ${PETSTORE_SECURITY_API_KEY}
+      SPRING_PROFILES_ACTIVE: dev
+    ports:
+      - "8080:8080"
+      - "9090:9090"
+
+volumes:
+  petstore-postgresql-data:
+    name: petstore-postgresql-data
+
+networks:
+  default:
+    name: petstore-local-network
