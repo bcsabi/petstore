@@ -1,4 +1,6 @@
 spring:
+  application:
+    name: order-service
   jpa:
     open-in-view: false
     properties:
@@ -20,3 +22,8 @@ petstore:
   problem:
     base-uri: https://api.petstore.hu/errors
     include-detail: never
+  logging:
+    request:
+      enabled: true
+    grpc:
+      enabled: true

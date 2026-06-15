@@ -4,6 +4,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.grpc.server.GlobalServerInterceptor;
 
+import hu.bcsabi.petstore.common.grpc.security.ApiKeyServerInterceptor;
 import hu.bcsabi.petstore.order.security.ApiKeyProperties;
 
 import io.grpc.ServerInterceptor;

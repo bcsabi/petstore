@@ -1,4 +1,4 @@
-package hu.bcsabi.petstore.order.grpc.exception;
+package hu.bcsabi.petstore.common.grpc.exception;
 
 import java.util.Locale;
 
@@ -14,62 +14,69 @@ import hu.bcsabi.petstore.common.core.exception.BaseException;
 import hu.bcsabi.petstore.common.core.exception.BusinessException;
 import hu.bcsabi.petstore.common.core.exception.BusinessObjectNotFoundException;
 import hu.bcsabi.petstore.common.core.exception.TechnicalException;
-import hu.bcsabi.petstore.common.web.config.ProblemProperties;
-import hu.bcsabi.petstore.common.web.config.ProblemProperties.IncludeDetail;
+import hu.bcsabi.petstore.common.grpc.config.GrpcProblemProperties;
+import hu.bcsabi.petstore.common.grpc.config.GrpcProblemProperties.IncludeDetail;
 
 import io.grpc.Status;
 
 /**
- * Maps the application exceptions to gRPC statuses, mirroring the REST
- * {@code CommonRestExceptionHandler}. The status description carries the same
- * localized problem title as the REST {@code title}; the raw exception message is
- * never exposed to the client.
+ * Maps the application exceptions to gRPC statuses.
+ * Mmirroring the REST {@code CommonRestExceptionHandler}.
  *
  * @author csaba.balogh
  * @since 0.1.0
  */
 @GrpcAdvice
-public class GrpcExceptionAdvice {
+public class CommonGrpcExceptionAdvice {
 
-    private static final Logger LOG = LoggerFactory.getLogger(GrpcExceptionAdvice.class);
+    private static final String UNEXPECTED_ERROR_CODE = "unexpected-error";
+
+    private static final Logger LOG = LoggerFactory.getLogger(CommonGrpcExceptionAdvice.class);
 
     private final MessageSource messageSource;
-    private final ProblemProperties problemProperties;
+    private final GrpcProblemProperties problemProperties;
 
-    public GrpcExceptionAdvice(MessageSource messageSource, ProblemProperties problemProperties) {
+    public CommonGrpcExceptionAdvice(MessageSource messageSource, GrpcProblemProperties problemProperties) {
         this.messageSource = messageSource;
         this.problemProperties = problemProperties;
     }
 
     @GrpcExceptionHandler(BadRequestException.class)
     public Status handleBadRequest(BadRequestException exception) {
+        LOG.error("Bad request exception occurred", exception);
         return toStatus(Status.INVALID_ARGUMENT, exception);
     }
 
     @GrpcExceptionHandler(BusinessObjectNotFoundException.class)
     public Status handleNotFound(BusinessObjectNotFoundException exception) {
+        LOG.error("Business object not found", exception);
         return toStatus(Status.NOT_FOUND, exception);
     }
 
     @GrpcExceptionHandler(BusinessException.class)
     public Status handleBusiness(BusinessException exception) {
+        LOG.error("Business exception occurred", exception);
         return toStatus(Status.FAILED_PRECONDITION, exception);
     }
 
     @GrpcExceptionHandler(TechnicalException.class)
     public Status handleTechnical(TechnicalException exception) {
-        LOG.error("Technical failure", exception);
+        LOG.error("Technical exception occurred", exception);
         return toStatus(Status.INTERNAL, exception);
     }
 
     @GrpcExceptionHandler(Exception.class)
     public Status handleUnexpected(Exception exception) {
-        LOG.error("Unexpected failure", exception);
-        return Status.INTERNAL.withDescription("Internal server error");
+        LOG.error("Unexpected exception occurred", exception);
+        return toStatus(Status.INTERNAL, exception);
     }
 
-    private Status toStatus(Status status, BaseException exception) {
-        String title = getLocalizedTitle(exception.getProblemType().code());
+    private Status toStatus(Status status, Exception exception) {
+        String code = exception instanceof BaseException be
+            ? be.getProblemType().code()
+            : UNEXPECTED_ERROR_CODE;
+
+        String title = getLocalizedTitle(code);
 
         if (problemProperties.includeDetail() == IncludeDetail.ALWAYS) {
             return status.withDescription(title + ": " + exception.getMessage());

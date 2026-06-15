@@ -39,6 +39,7 @@ class ListOrdersGrpcIT extends AbstractGrpcOrderIT {
 
         // then
         assertThat(response.getOrdersList())
+            .isNotEmpty()
             .extracting(Order::getId)
             .doesNotContain(createdOrderId.toString());
     }

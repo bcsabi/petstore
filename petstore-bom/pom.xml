@@ -63,6 +63,12 @@
 
             <dependency>
                 <groupId>hu.bcsabi.petstore</groupId>
+                <artifactId>petstore-common-grpc</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>hu.bcsabi.petstore</groupId>
                 <artifactId>petstore-order-api</artifactId>
                 <version>${project.version}</version>
             </dependency>

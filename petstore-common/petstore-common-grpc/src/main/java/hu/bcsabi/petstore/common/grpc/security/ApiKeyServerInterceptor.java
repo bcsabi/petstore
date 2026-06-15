@@ -1,4 +1,4 @@
-package hu.bcsabi.petstore.order.grpc.security;
+package hu.bcsabi.petstore.common.grpc.security;
 
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;

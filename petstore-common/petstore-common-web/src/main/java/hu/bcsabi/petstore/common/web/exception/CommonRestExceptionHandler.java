@@ -30,6 +30,8 @@ import hu.bcsabi.petstore.common.web.config.ProblemProperties.IncludeDetail;
 @RestControllerAdvice
 public class CommonRestExceptionHandler {
 
+    private static final String UNEXPECTED_ERROR_CODE = "unexpected-error";
+
     private static final Logger LOG = LoggerFactory.getLogger(CommonRestExceptionHandler.class);
 
     private final MessageSource messageSource;
@@ -42,27 +44,39 @@ public class CommonRestExceptionHandler {
 
     @ExceptionHandler(BadRequestException.class)
     public ProblemDetail handleBadRequest(BadRequestException exception) {
+        LOG.error("Bad request exception occurred", exception);
         return toProblemDetail(HttpStatus.BAD_REQUEST, exception);
     }
 
     @ExceptionHandler(BusinessObjectNotFoundException.class)
     public ProblemDetail handleNotFound(BusinessObjectNotFoundException exception) {
+        LOG.error("Business object not found", exception);
         return toProblemDetail(HttpStatus.NOT_FOUND, exception);
     }
 
     @ExceptionHandler(BusinessException.class)
     public ProblemDetail handleBusiness(BusinessException exception) {
+        LOG.error("Business exception occurred", exception);
         return toProblemDetail(HttpStatus.UNPROCESSABLE_CONTENT, exception);
     }
 
     @ExceptionHandler(TechnicalException.class)
     public ProblemDetail handleTechnical(TechnicalException exception) {
-        LOG.error("Technical failure", exception);
+        LOG.error("Technical exception occurred", exception);
         return toProblemDetail(HttpStatus.INTERNAL_SERVER_ERROR, exception);
     }
 
-    private ProblemDetail toProblemDetail(HttpStatus status, BaseException exception) {
-        String code = exception.getProblemType().code();
+    @ExceptionHandler(Exception.class)
+    public ProblemDetail handleUnexpected(Exception exception) {
+        LOG.error("Unexpected exception occurred", exception);
+        return toProblemDetail(HttpStatus.INTERNAL_SERVER_ERROR, exception);
+    }
+
+    private ProblemDetail toProblemDetail(HttpStatus status, Exception exception) {
+        String code = exception instanceof BaseException be
+            ? be.getProblemType().code()
+            : UNEXPECTED_ERROR_CODE;
+
         String title = getLocalizedTitle(code);
         URI type = UriComponentsBuilder.fromUriString(problemProperties.baseUri()).pathSegment(code).build().toUri();
 

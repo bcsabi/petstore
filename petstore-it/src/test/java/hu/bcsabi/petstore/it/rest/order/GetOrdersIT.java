@@ -6,6 +6,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
+import org.springframework.http.MediaType;
 
 import hu.bcsabi.petstore.order.dto.JsonPatchOperation;
 import hu.bcsabi.petstore.order.dto.OrderCreateRequest;
@@ -54,6 +55,26 @@ class GetOrdersIT extends AbstractOrderIT {
         assertThat(orderListElementDto.getId()).isNotNull();
         assertThat(orderListElementDto.getStatus()).isEqualTo(OrderStatusDto.PLACED);
         assertThat(orderListElementDto.getShipDate()).isEqualTo(shipDate);
+    }
+
+    @Test
+    void shouldReturn400WhenDateRangeIsInvalid() {
+        // given
+        LocalDate from = LocalDate.now().plusYears(1);
+        LocalDate to = LocalDate.now().minusYears(1);
+
+        // when / then
+        orderRestTestClient.get()
+            .uri(uriBuilder -> uriBuilder
+                .queryParam("from", from)
+                .queryParam("to", to)
+                .build()
+            )
+            .exchange()
+            .expectStatus().isBadRequest()
+            .expectHeader().contentTypeCompatibleWith(MediaType.APPLICATION_PROBLEM_JSON)
+            .expectBody()
+            .jsonPath("type").isEqualTo(PROBLEM_BASE + "/invalid-date-range");
     }
 
 }

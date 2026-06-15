@@ -8,6 +8,8 @@ import java.util.UUID;
 
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 
 import hu.bcsabi.petstore.order.dto.JsonPatchOperation;
 import hu.bcsabi.petstore.order.dto.OrderCreateRequest;
@@ -76,6 +78,32 @@ class PatchOrderIT extends AbstractOrderIT {
         assertThat(orderResponse.getId()).isNotNull();
         assertThat(orderResponse.getStatus()).isEqualTo(OrderStatusDto.APPROVED);
         assertThat(orderResponse.getShipDate()).isEqualTo(shipDate);
+    }
+
+    @Test
+    void shouldReturn422WhenStatusTransitionIsIllegal() {
+        // given
+        OrderCreateRequest request = new OrderCreateRequest(existingPetId);
+        OrderResponse createOrderResponse = createOrder(request);
+        assertThat(createOrderResponse).isNotNull();
+
+        createdOrderId = createOrderResponse.getId();
+
+        JsonPatchOperation replaceStatusOperation = new JsonPatchOperation();
+        replaceStatusOperation.op(JsonPatchOperation.OpEnum.REPLACE);
+        replaceStatusOperation.path("/status");
+        replaceStatusOperation.value(OrderStatusDto.DELIVERED.toString());
+
+        // when / then
+        orderRestTestClient.patch()
+            .uri("/{orderId}", createdOrderId)
+            .contentType(MediaType.valueOf("application/json-patch+json"))
+            .body(List.of(replaceStatusOperation))
+            .exchange()
+            .expectStatus().isEqualTo(HttpStatus.UNPROCESSABLE_CONTENT)
+            .expectHeader().contentTypeCompatibleWith(MediaType.APPLICATION_PROBLEM_JSON)
+            .expectBody()
+            .jsonPath("type").isEqualTo(PROBLEM_BASE + "/illegal-status-transition");
     }
 
 }
